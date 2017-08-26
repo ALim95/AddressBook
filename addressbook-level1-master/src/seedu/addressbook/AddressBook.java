@@ -33,7 +33,7 @@ public class AddressBook {
      * Default file path used if the user doesn't provide the file name.
      */
     private static final String DEFAULT_STORAGE_FILEPATH = "addressbook.txt";
-
+    private static final String DEFAULT_FAVLIST_FILEPATH = "favList.txt";
     /**
      * Version info of the program.
      */
@@ -77,13 +77,17 @@ public class AddressBook {
     private static final String MESSAGE_INVALID_STORAGE_FILE_CONTENT = "Storage file has invalid content";
     private static final String MESSAGE_PERSON_NOT_IN_ADDRESSBOOK = "Person could not be found in address book";
     private static final String MESSAGE_ERROR_CREATING_STORAGE_FILE = "Error: unable to create file: %1$s";
+    private static final String MESSAGE_ERROR_CREATING_FAVLIST_FILE = "Error: unable to create file: %1$s";
     private static final String MESSAGE_ERROR_MISSING_STORAGE_FILE = "Storage file missing: %1$s";
+    private static final String MESSAGE_ERROR_MISSING_FAVLIST_FILE = "Favourites List file missing: %1$s";
     private static final String MESSAGE_ERROR_READING_FROM_FILE = "Unexpected error: unable to read from file: %1$s";
     private static final String MESSAGE_ERROR_WRITING_TO_FILE = "Unexpected error: unable to write to file: %1$s";
     private static final String MESSAGE_PERSONS_FOUND_OVERVIEW = "%1$d persons found!";
     private static final String MESSAGE_STORAGE_FILE_CREATED = "Created new empty storage file: %1$s";
+    private static final String MESSAGE_FAVLIST_FILE_CREATED = "Created new empty favourites list file: %1$s";
     private static final String MESSAGE_WELCOME = "Welcome to your Address Book!";
     private static final String MESSAGE_USING_DEFAULT_FILE = "Using default storage file : " + DEFAULT_STORAGE_FILEPATH;
+    private static final String MESSAGE_USING_DEFAULT_FAVLIST = "Using default favourites list : " + DEFAULT_FAVLIST_FILEPATH;
 
     // These are the prefix strings to define the data type of a command parameter
     private static final String PERSON_DATA_PREFIX_PHONE = "p/";
@@ -202,6 +206,7 @@ public class AddressBook {
      * The path to the file used for storing person data.
      */
     private static String storageFilePath;
+    private static String favListFilePath;
 
     /*
      * NOTE : =============================================================
@@ -292,7 +297,7 @@ public class AddressBook {
         }
 
         storageFilePath = filePath;
-        createFileIfMissing(filePath);
+        createFileIfMissing(filePath, DEFAULT_FAVLIST_FILEPATH);
     }
 
     /**
@@ -310,8 +315,10 @@ public class AddressBook {
      */
     private static void setupDefaultFileForStorage() {
         showToUser(MESSAGE_USING_DEFAULT_FILE);
+        showToUser(MESSAGE_USING_DEFAULT_FAVLIST);
         storageFilePath = DEFAULT_STORAGE_FILEPATH;
-        createFileIfMissing(storageFilePath);
+        favListFilePath = DEFAULT_FAVLIST_FILEPATH;
+        createFileIfMissing(storageFilePath,favListFilePath);
     }
 
     /**
@@ -717,21 +724,35 @@ public class AddressBook {
      *
      * @param filePath file to create if not present
      */
-    private static void createFileIfMissing(String filePath) {
+    private static void createFileIfMissing(String filePath, String favListPath) {
         final File storageFile = new File(filePath);
-        if (storageFile.exists()) {
+        final File favList = new File(favListPath);
+        if (storageFile.exists() && favList.exists()) {
             return;
         }
-
-        showToUser(String.format(MESSAGE_ERROR_MISSING_STORAGE_FILE, filePath));
-
-        try {
-            storageFile.createNewFile();
-            showToUser(String.format(MESSAGE_STORAGE_FILE_CREATED, filePath));
-        } catch (IOException ioe) {
-            showToUser(String.format(MESSAGE_ERROR_CREATING_STORAGE_FILE, filePath));
-            exitProgram();
+        else if (!storageFile.exists()) {
+            showToUser(String.format(MESSAGE_ERROR_MISSING_STORAGE_FILE, filePath));
+            try {
+                storageFile.createNewFile();
+                showToUser(String.format(MESSAGE_STORAGE_FILE_CREATED, filePath));
+            } catch (IOException ioe) {
+                showToUser(String.format(MESSAGE_ERROR_CREATING_STORAGE_FILE, filePath));
+                exitProgram();
+            }
         }
+        else if (!favList.exists()){
+            showToUser(String.format(MESSAGE_ERROR_MISSING_FAVLIST_FILE, favListPath));
+            try {
+                favList.createNewFile();
+                showToUser(String.format(MESSAGE_FAVLIST_FILE_CREATED, favListPath));
+            } catch (IOException ioe) {
+                showToUser(String.format(MESSAGE_ERROR_CREATING_FAVLIST_FILE, favListPath));
+                exitProgram();
+            }
+        }
+
+
+
     }
 
     /**
