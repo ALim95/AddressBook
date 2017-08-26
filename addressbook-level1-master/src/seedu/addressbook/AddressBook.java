@@ -128,9 +128,8 @@ public class AddressBook {
     private static final String COMMAND_HELP_EXAMPLE = COMMAND_HELP_WORD;
 
     private static final String COMMAND_ADDFAV_WORD = "addfav";
-    private static final String COMMAND_ADDFAV_DESC = "Add a contact to favourites list";
-    private static final String COMMAND_ADDFAV_PARAMETERS = "NAME " + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER";
-    private static final String COMMAND_ADDFAV_EXAMPLE = COMMAND_ADDFAV_WORD + " John Doe p/98765432";
+    private static final String COMMAND_ADDFAV_DESC = "Add a contact to favourites list by inputting the index";
+    private static final String COMMAND_ADDFAV_EXAMPLE = COMMAND_ADDFAV_WORD;
 
     private static final String COMMAND_FAVLIST_WORD = "favlist";
     private static final String COMMAND_FAVLIST_DESC = "Shows lists of favourite contacts";
@@ -364,6 +363,7 @@ public class AddressBook {
      */
     private static void loadDataFromStorage() {
         initialiseAddressBookModel(loadPersonsFromFile(storageFilePath));
+        initialiseFavList(loadPersonsFromFile(favListFilePath));
     }
 
 
@@ -395,9 +395,9 @@ public class AddressBook {
         case COMMAND_CLEAR_WORD:
             return executeClearAddressBook();
         case COMMAND_ADDFAV_WORD:
-            return "testing";
+            return executeAddFav();
         case COMMAND_FAVLIST_WORD:
-            return "testing";
+            return executeFavList();
         case COMMAND_HELP_WORD:
             return getUsageInfoForAllCommands();
 
@@ -460,6 +460,32 @@ public class AddressBook {
     private static String getMessageForSuccessfulAddPerson(HashMap<PersonProperty,String> addedPerson) {
         return String.format(MESSAGE_ADDED,
                 getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+    }
+
+    /**
+     * Add a person to the favourites list
+     *
+     * @return feedback display message for the operation result
+     */
+    private static String executeAddFav() {
+        executeListAllPersonsInAddressBook();
+        System.out.print("|| Enter index of person to add: ");
+        int indexToAdd = SCANNER.nextInt();
+        System.out.println("||");
+        final HashMap<PersonProperty,String> targetToAdd = getPersonByLastVisibleIndex(indexToAdd);
+        addPersonToFavouritesList(targetToAdd);
+        return getMessageForSuccessfulAddPerson(targetToAdd);
+    }
+
+    /**
+     * Lists all persons in favourites list
+     *
+     * @return feedback display message for the operation result
+     */
+    private static String executeFavList(){
+        ArrayList<HashMap<PersonProperty,String>> toBeDisplayed = getAllPersonsInFavList();
+        showToUser(toBeDisplayed);
+        return getMessageForPersonsDisplayedSummary(toBeDisplayed);
     }
 
     /**
@@ -804,6 +830,21 @@ public class AddressBook {
         }
     }
 
+    /**
+     * Saves all data to the favourites list. Exits program if there is an error saving.
+     *
+     * @param filePath file for saving
+     */
+    private static void savePersonsToFavList(ArrayList<HashMap<PersonProperty,String>> persons, String filePath) {
+        final ArrayList<String> linesToWrite = encodePersonsToStrings(persons);
+        try {
+            Files.write(Paths.get(favListFilePath), linesToWrite);
+        } catch (IOException ioe) {
+            showToUser(String.format(MESSAGE_ERROR_WRITING_TO_FILE, filePath));
+            exitProgram();
+        }
+    }
+
 
     /*
      * ================================================================================
@@ -828,6 +869,7 @@ public class AddressBook {
      */
     private static void addPersonToFavouritesList(HashMap<PersonProperty,String> person){
         FAV_LIST.add(person);
+        savePersonsToFavList(getAllPersonsInFavList(), favListFilePath);
     }
     /**
      * Deletes the specified person from the addressbook if it is inside. Saves any changes to storage file.
@@ -851,6 +893,12 @@ public class AddressBook {
     }
 
     /**
+     * Returns all persons in the address book
+     */
+    private static ArrayList<HashMap<PersonProperty,String>> getAllPersonsInFavList() {
+        return FAV_LIST;
+    }
+    /**
      * Clears all persons in the address book and saves changes to file.
      */
     private static void clearAddressBook() {
@@ -868,6 +916,16 @@ public class AddressBook {
         ALL_PERSONS.addAll(persons);
     }
 
+    /**
+     * Resets the internal model with the given data. Does not save to file.
+     *
+     * @param persons list of persons to initialise the model with
+     */
+
+    private static void initialiseFavList(ArrayList<HashMap<PersonProperty,String>> persons) {
+        FAV_LIST.clear();
+        FAV_LIST.addAll(persons);
+    }
 
     /*
      * ===========================================
@@ -1182,7 +1240,6 @@ public class AddressBook {
     /** returns the string for showing 'addfav' command usage instructions */
     private static String getUsageInfoForAddFavCommand(){
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_ADDFAV_WORD, COMMAND_ADDFAV_DESC) + LS
-                + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_ADDFAV_PARAMETERS) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_ADDFAV_EXAMPLE) + LS;
     }
     /** returns the string for showing 'favlist' command usage instructions */
