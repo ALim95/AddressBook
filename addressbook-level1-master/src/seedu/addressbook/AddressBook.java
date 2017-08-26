@@ -123,6 +123,15 @@ public class AddressBook {
     private static final String COMMAND_HELP_DESC = "Shows program usage instructions.";
     private static final String COMMAND_HELP_EXAMPLE = COMMAND_HELP_WORD;
 
+    private static final String COMMAND_ADDFAV_WORD = "addfav";
+    private static final String COMMAND_ADDFAV_DESC = "Add a contact to favourites list";
+    private static final String COMMAND_ADDFAV_PARAMETERS = "NAME " + PERSON_DATA_PREFIX_PHONE + "PHONE_NUMBER";
+    private static final String COMMAND_ADDFAV_EXAMPLE = COMMAND_ADDFAV_WORD + " John Doe p/98765432";
+
+    private static final String COMMAND_FAVLIST_WORD = "favlist";
+    private static final String COMMAND_FAVLIST_DESC = "Shows lists of favourite contacts";
+    private static final String COMMAND_FAVLIST_EXAMPLE = COMMAND_FAVLIST_WORD;
+
     private static final String COMMAND_EXIT_WORD = "exit";
     private static final String COMMAND_EXIT_DESC = "Exits the program.";
     private static final String COMMAND_EXIT_EXAMPLE = COMMAND_EXIT_WORD;
@@ -176,6 +185,11 @@ public class AddressBook {
      * List of all persons in the address book.
      */
     private static final ArrayList<HashMap<PersonProperty,String>> ALL_PERSONS = new ArrayList<>();
+
+    /**
+     * List of all persons in favourites list
+     */
+    private static final ArrayList<HashMap<PersonProperty,String>> FAV_LIST = new ArrayList<>();
 
     /**
      * Stores the most recent list of persons shown to the user as a result of a user command.
@@ -373,8 +387,13 @@ public class AddressBook {
             return executeDeletePerson(commandArgs);
         case COMMAND_CLEAR_WORD:
             return executeClearAddressBook();
+        case COMMAND_ADDFAV_WORD:
+            return "testing";
+        case COMMAND_FAVLIST_WORD:
+            return "testing";
         case COMMAND_HELP_WORD:
             return getUsageInfoForAllCommands();
+
         case COMMAND_EXIT_WORD:
             executeExitProgramRequest();
         default:
@@ -782,6 +801,14 @@ public class AddressBook {
     }
 
     /**
+     * Adds a person to the favourites list.
+     *
+     * @param person to add
+     */
+    private static void addPersonToFavouritesList(HashMap<PersonProperty,String> person){
+        FAV_LIST.add(person);
+    }
+    /**
      * Deletes the specified person from the addressbook if it is inside. Saves any changes to storage file.
      *
      * @param exactPerson the actual person inside the address book (exactPerson == the person to delete in the full list)
@@ -1081,6 +1108,8 @@ public class AddressBook {
                 + getUsageInfoForViewCommand() + LS
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
+                + getUsageInfoForAddFavCommand() + LS
+                + getUsageInfoForFavListCommand() + LS
                 + getUsageInfoForExitCommand() + LS
                 + getUsageInfoForHelpCommand();
     }
@@ -1129,8 +1158,17 @@ public class AddressBook {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_EXIT_WORD, COMMAND_EXIT_DESC)
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
     }
-
-
+    /** returns the string for showing 'addfav' command usage instructions */
+    private static String getUsageInfoForAddFavCommand(){
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_ADDFAV_WORD, COMMAND_ADDFAV_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_PARAMETERS, COMMAND_ADDFAV_PARAMETERS) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_ADDFAV_EXAMPLE) + LS;
+    }
+    /** returns the string for showing 'favlist' command usage instructions */
+    private static String getUsageInfoForFavListCommand(){
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_FAVLIST_WORD, COMMAND_FAVLIST_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_FAVLIST_EXAMPLE) +LS;
+    }
     /*
      * ============================
      *         UTILITY METHODS
