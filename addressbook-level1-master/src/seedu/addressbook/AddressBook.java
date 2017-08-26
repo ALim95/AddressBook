@@ -469,12 +469,21 @@ public class AddressBook {
      */
     private static String executeAddFav() {
         executeListAllPersonsInAddressBook();
-        System.out.print("|| Enter index of person to add: ");
-        int indexToAdd = SCANNER.nextInt();
-        System.out.println("||");
+        int indexToAdd = getIndexToAdd();
         final HashMap<PersonProperty,String> targetToAdd = getPersonByLastVisibleIndex(indexToAdd);
         addPersonToFavouritesList(targetToAdd);
         return getMessageForSuccessfulAddPerson(targetToAdd);
+    }
+
+    /**
+     * Get user input from user and returns the index to add
+     * @return an index integer
+     */
+    private static int getIndexToAdd() {
+        System.out.print("|| Enter index of person to add: ");
+        int indexToAdd = SCANNER.nextInt();
+        System.out.println("||");
+        return indexToAdd;
     }
 
     /**
