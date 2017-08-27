@@ -226,6 +226,7 @@ public class AddressBook {
     public static void main(String[] args) {
         showWelcomeMessage();
         processProgramArgs(args);
+        setUpFavouritesListForStorage();
         loadDataFromStorage();
         while (true) {
             String userCommand = getUserInput();
@@ -301,7 +302,7 @@ public class AddressBook {
         }
 
         storageFilePath = filePath;
-        createFileIfMissing(filePath, DEFAULT_FAVLIST_FILEPATH);
+        createFileIfMissing(filePath);
     }
 
     /**
@@ -319,10 +320,19 @@ public class AddressBook {
      */
     private static void setupDefaultFileForStorage() {
         showToUser(MESSAGE_USING_DEFAULT_FILE);
-        showToUser(MESSAGE_USING_DEFAULT_FAVLIST);
         storageFilePath = DEFAULT_STORAGE_FILEPATH;
+        createFileIfMissing(storageFilePath);
+    }
+
+    /**
+     * Sets up favourites list.
+     * Creates file if missing.
+     * Exits program if the file cannot be created.
+     */
+    private static void setUpFavouritesListForStorage() {
+        showToUser(MESSAGE_USING_DEFAULT_FAVLIST);
         favListFilePath = DEFAULT_FAVLIST_FILEPATH;
-        createFileIfMissing(storageFilePath,favListFilePath);
+        createFavListIfMissing(favListFilePath);
     }
 
     /**
@@ -475,9 +485,14 @@ public class AddressBook {
      * @return feedback display message for the operation result
      */
     private static String executeAddFav() {
+        // lists all the person in address book
         executeListAllPersonsInAddressBook();
+
+        // get the target index from user input
         int indexToAdd = getIndexToAdd();
         final HashMap<PersonProperty,String> targetToAdd = getPersonByLastVisibleIndex(indexToAdd);
+
+        // add the person as specified
         addPersonToFavouritesList(targetToAdd);
         return getMessageForSuccessfulAddPerson(targetToAdd);
     }
@@ -776,13 +791,12 @@ public class AddressBook {
      *
      * @param filePath file to create if not present
      */
-    private static void createFileIfMissing(String filePath, String favListPath) {
+    private static void createFileIfMissing(String filePath) {
         final File storageFile = new File(filePath);
-        final File favList = new File(favListPath);
-        if (storageFile.exists() && favList.exists()) {
+        if (storageFile.exists()) {
             return;
         }
-        else if (!storageFile.exists()) {
+        else {
             showToUser(String.format(MESSAGE_ERROR_MISSING_STORAGE_FILE, filePath));
             try {
                 storageFile.createNewFile();
@@ -792,7 +806,19 @@ public class AddressBook {
                 exitProgram();
             }
         }
-        else if (!favList.exists()){
+    }
+
+    /**
+     * Creates favourites list if it does not exist. Shows feedback to user.
+     *
+     * @param favListPath file to create if not present
+     */
+    private static void createFavListIfMissing(String favListPath) {
+        final File favList = new File(favListPath);
+        if (favList.exists()) {
+            return;
+        }
+        else{
             showToUser(String.format(MESSAGE_ERROR_MISSING_FAVLIST_FILE, favListPath));
             try {
                 favList.createNewFile();
@@ -802,11 +828,7 @@ public class AddressBook {
                 exitProgram();
             }
         }
-
-
-
     }
-
     /**
      * Converts contents of a file into a list of persons.
      * Shows error messages and exits program if any errors in reading or decoding was encountered.
