@@ -61,6 +61,7 @@ public class AddressBook {
     private enum PersonProperty  {NAME, EMAIL, PHONE};
     private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
+    private static final String MESSAGE_FAVLIST_CLEARED = "Favourites List has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
     private static final String MESSAGE_COMMAND_HELP_EXAMPLE = "\tExample: %1$s";
@@ -122,6 +123,10 @@ public class AddressBook {
     private static final String COMMAND_CLEAR_WORD = "clear";
     private static final String COMMAND_CLEAR_DESC = "Clears address book permanently.";
     private static final String COMMAND_CLEAR_EXAMPLE = COMMAND_CLEAR_WORD;
+
+    private static final String COMMAND_CLEARFAV_WORD = "clearfav";
+    private static final String COMMAND_CLEARFAV_DESC = "Clears favourites list permananetly.";
+    private static final String COMMAND_CLEARFAV_EXAMPLE = COMMAND_CLEARFAV_WORD;
 
     private static final String COMMAND_HELP_WORD = "help";
     private static final String COMMAND_HELP_DESC = "Shows program usage instructions.";
@@ -394,6 +399,8 @@ public class AddressBook {
             return executeDeletePerson(commandArgs);
         case COMMAND_CLEAR_WORD:
             return executeClearAddressBook();
+        case COMMAND_CLEARFAV_WORD:
+            return executeClearFavList();
         case COMMAND_ADDFAV_WORD:
             return executeAddFav();
         case COMMAND_FAVLIST_WORD:
@@ -621,6 +628,16 @@ public class AddressBook {
     private static String executeClearAddressBook() {
         clearAddressBook();
         return MESSAGE_ADDRESSBOOK_CLEARED;
+    }
+
+    /**
+     * Clears all persons in the address book.
+     *
+     * @return feedback display message for the operation result
+     */
+    private static String executeClearFavList() {
+        clearFavList();
+        return MESSAGE_FAVLIST_CLEARED;
     }
 
     /**
@@ -907,12 +924,21 @@ public class AddressBook {
     private static ArrayList<HashMap<PersonProperty,String>> getAllPersonsInFavList() {
         return FAV_LIST;
     }
+
     /**
      * Clears all persons in the address book and saves changes to file.
      */
     private static void clearAddressBook() {
         ALL_PERSONS.clear();
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+    }
+
+    /**
+     * Clears all persons in the address book and saves changes to file.
+     */
+    private static void clearFavList() {
+        FAV_LIST.clear();
+        savePersonsToFavList(getAllPersonsInFavList(), favListFilePath);
     }
 
     /**
@@ -1198,6 +1224,7 @@ public class AddressBook {
                 + getUsageInfoForClearCommand() + LS
                 + getUsageInfoForAddFavCommand() + LS
                 + getUsageInfoForFavListCommand() + LS
+                + getUsageInfoForClearFavCommand() + LS
                 + getUsageInfoForExitCommand() + LS
                 + getUsageInfoForHelpCommand();
     }
@@ -1246,16 +1273,25 @@ public class AddressBook {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_EXIT_WORD, COMMAND_EXIT_DESC)
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_EXIT_EXAMPLE);
     }
+
     /** returns the string for showing 'addfav' command usage instructions */
     private static String getUsageInfoForAddFavCommand(){
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_ADDFAV_WORD, COMMAND_ADDFAV_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_ADDFAV_EXAMPLE) + LS;
     }
+
     /** returns the string for showing 'favlist' command usage instructions */
     private static String getUsageInfoForFavListCommand(){
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_FAVLIST_WORD, COMMAND_FAVLIST_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_FAVLIST_EXAMPLE) +LS;
     }
+
+    /** Returns string for showing 'clearfav' command usage instruction */
+    private static String getUsageInfoForClearFavCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_CLEARFAV_WORD, COMMAND_CLEARFAV_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_CLEARFAV_EXAMPLE) + LS;
+    }
+
     /*
      * ============================
      *         UTILITY METHODS
