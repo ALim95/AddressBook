@@ -76,6 +76,7 @@ public class AddressBook {
                                                             + LS + "\tjava AddressBook [custom storage file path]";
     private static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid";
     private static final String MESSAGE_NO_PERSON_IN_ADDRESSBOOK = "There is currently no one in the Address Book";
+    private static final String MESSAGE_DUPLICATE_ENTRY = "This is a duplicate entry";
     private static final String MESSAGE_ALREADY_ADDED_IN_FAV_LIST = "The selected person is already in favourites list";
     private static final String MESSAGE_INVALID_STORAGE_FILE_CONTENT = "Storage file has invalid content";
     private static final String MESSAGE_PERSON_NOT_IN_ADDRESSBOOK = "Person could not be found in address book";
@@ -465,6 +466,9 @@ public class AddressBook {
 
         // add the person as specified
         final HashMap<PersonProperty,String> personToAdd = decodeResult.get();
+        if (ALL_PERSONS.contains(personToAdd)){
+            return MESSAGE_DUPLICATE_ENTRY;
+        }
         addPersonToAddressBook(personToAdd);
         return getMessageForSuccessfulAddPerson(personToAdd);
     }
