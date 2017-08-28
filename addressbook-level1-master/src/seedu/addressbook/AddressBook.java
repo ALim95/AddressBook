@@ -76,6 +76,7 @@ public class AddressBook {
                                                             + LS + "\tjava AddressBook [custom storage file path]";
     private static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid";
     private static final String MESSAGE_NO_PERSON_IN_ADDRESSBOOK = "There is currently no one in the Address Book";
+    private static final String MESSAGE_ALREADY_ADDED_IN_FAV_LIST = "The selected person is already in favourites list";
     private static final String MESSAGE_INVALID_STORAGE_FILE_CONTENT = "Storage file has invalid content";
     private static final String MESSAGE_PERSON_NOT_IN_ADDRESSBOOK = "Person could not be found in address book";
     private static final String MESSAGE_ERROR_CREATING_STORAGE_FILE = "Error: unable to create file: %1$s";
@@ -494,11 +495,13 @@ public class AddressBook {
         }
         // get the target index from user input
         int indexToAdd = getIndexToAdd();
-        if (!isDisplayIndexValidForLastPersonListingView(indexToAdd)) {
+        if (!isDisplayIndexValidForLastPersonListingView(indexToAdd)) { //if index is out of bounds
             return MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
         }
         final HashMap<PersonProperty,String> targetToAdd = getPersonByLastVisibleIndex(indexToAdd);
-
+        if (FAV_LIST.contains(targetToAdd)){
+            return MESSAGE_ALREADY_ADDED_IN_FAV_LIST;
+        }
         // add the person as specified
         addPersonToFavouritesList(targetToAdd);
         return getMessageForSuccessfulAddPerson(targetToAdd);
